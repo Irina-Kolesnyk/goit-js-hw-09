@@ -1,4 +1,6 @@
 'use strict';
+const LOCAL_KEY = 'feedback-form-state';
+let formData = JSON.parse(localStorage.getItem(LOCAL_KEY)) || {};
 const form = document.querySelector('.feedback-form');
 const textarea = form.querySelector('textarea');
 
