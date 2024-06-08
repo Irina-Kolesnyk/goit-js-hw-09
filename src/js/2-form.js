@@ -1,63 +1,36 @@
-'use strict';
-const LOCAL_KEY = 'feedback-form-state';
-let formData = JSON.parse(localStorage.getItem(LOCAL_KEY)) || {};
+const formData = {
+email: "",
+message: ""
+};
 const form = document.querySelector('.feedback-form');
-const textarea = form.querySelector('textarea');
+const savedData = localStorage.getItem('feedback-form-state');
+if (savedData) {
+const parsedData = JSON.parse(savedData);
+formData.email = parsedData.email || "";
+formData.message = parsedData.message || "";
+form.elements.email.value = formData.email;
+form.elements.message.value = formData.message;
+}
+form.addEventListener('input', handleInput);
+form.addEventListener('submit', handleSubmit);
 
+function handleInput(event) {
+formData[event.target.name] = event.target.value;
+localStorage.setItem('feedback-form-state', JSON.stringify(formData));
+}
 
-form.addEventListener('input', () => {
-const formData = new FormData(form); 
-const email = formData.get('email').trim(); 
-const message = formData.get('message').trim(); 
-const data = { email, message };
-    
-saveToLS('email', email);
-saveToLS('message', message);
-});
+function handleSubmit(event) {
+event.preventDefault();
 
-form.addEventListener('submit', e => {
-e.preventDefault();
-
-const formData = new FormData(form);
-const email = formData.get('email');
-const message = formData.get('message');
-const data = { email, message };
-console.log(data);
-
-if (data.email === '' || data.message === '') {
+if (!formData.email || !formData.message) {
 alert('Fill please all fields');
-} else {
-console.log(data);
+return;
 }
-
-localStorage.removeItem('email');
-localStorage.removeItem('message');
-localStorage.removeItem('userInfo');
+saveToLS('feedback-form-state', formData);
+console.log('Form data:', formData);
+localStorage.removeItem('feedback-form-state');
+formData.email = "";
+formData.message = "";
 form.reset();
-});
-
-
-function saveToLS(key, value) {
-const jsonData = JSON.stringify(value);
-localStorage.setItem(key, jsonData);
 }
-
-function loadFromLS(key) {
-const json = localStorage.getItem(key);
-try {
-const data = JSON.parse(json);
-return data;
-} catch {
-return json;
-}
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-const data = loadFromLS('userInfo');
-console.log(data);
-form.elements.email.value = data?.email || '';
-form.elements.message.value = data?.message || '';
-});
-
-
 
